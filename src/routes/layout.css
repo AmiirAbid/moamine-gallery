@@ -1,3 +1,14 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@theme {
+    /* 1. Define the custom font names first */
+    --font-satoshi: "Satoshi-Variable", ui-sans-serif, system-ui, sans-serif;
+
+    /* 2. Tell Tailwind this is the DEFAULT for everything */
+    --default-font-family: var(--font-satoshi);
+
+    /* 3. Explicitly link font-sans to your variable */
+    --font-sans: var(--font-satoshi);
+}

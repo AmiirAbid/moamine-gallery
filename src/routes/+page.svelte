@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	import { CircleUser, Send, PanelsLeftBottom } from '@lucide/svelte';
 
 	const images = import.meta.glob('$lib/images/*.{png,jpg,jpeg,webp}', {
 		eager: true,
@@ -10,12 +9,10 @@
 
 	let canvasEl;
 	let tileRefs = $state(new Array(9).fill(null));
-
 	let x = $state(0);
 	let y = $state(0);
 	let tileW = 0, tileH = 0;
 	let ready = $state(false);
-
 	let isDragging = $state(false);
 	let lastPX = 0, lastPY = 0;
 	let velX = 0, velY = 0;
@@ -26,15 +23,14 @@
 		tileW = tileRefs[0].offsetWidth;
 		tileH = tileRefs[0].offsetHeight;
 		if (tileW > 0 && tileH > 0) {
-			x = -tileW;
-			y = -tileH;
+			x = -tileW + (tileW - window.innerWidth) / 2;
+			y = -tileH + (tileH - window.innerHeight) / 2;
 			ready = true;
 		}
 	}
 
 	onMount(() => {
 		initDimensions();
-
 		const imgs = tileRefs[0]?.querySelectorAll('img') ?? [];
 		let pending = [...imgs].filter(img => !img.complete).length;
 		if (pending === 0) { initDimensions(); return; }
@@ -43,7 +39,6 @@
 				if (--pending === 0) initDimensions();
 			});
 		});
-
 		return () => cancelAnimationFrame(animId);
 	});
 
@@ -94,9 +89,9 @@
 <!-- Infinite canvas -->
 <div
 	role="presentation"
-	class={isDragging ? 'cursor-grabbing' : 'cursor-grab'}
-	class:opacity-0={!ready}
-	style="position: fixed; inset: 0; overflow: hidden; touch-action: none; user-select: none;"
+	class="fixed inset-0 overflow-hidden touch-none select-none
+	       {isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+	       {ready ? 'opacity-100' : 'opacity-0'}"
 	bind:this={canvasEl}
 	onpointerdown={onPointerDown}
 	onpointermove={onPointerMove}
@@ -104,23 +99,14 @@
 	onpointercancel={onPointerUp}
 	oncontextmenu={(e) => e.preventDefault()}
 >
-	<!--
-		3×3 grid of identical tiles.
-		Since x stays in [-tileW, 0), the viewport always sits within
-		col 0–1 (and row 0–1), giving seamless wrapping in all directions.
-	-->
-	<div style="
-    position: absolute; top: 0; left: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 100vw);
-    transform: translate3d({x}px, {y}px, 0);
-    will-change: transform;
-  ">
+	<div
+		class="absolute top-0 left-0 grid will-change-transform"
+		style="grid-template-columns: repeat(3, 150vw); transform: translate3d({x}px, {y}px, 0);"
+	>
 		{#each Array(9) as _, i}
 			<div
 				bind:this={tileRefs[i]}
-				style="width: 100vw;"
-				class="columns-2 md:columns-3 lg:columns-4 gap-6 p-3"
+				class="w-[150vw] columns-3 md:columns-4 lg:columns-7 gap-6 p-3"
 			>
 				{#each imagePaths as path}
 					<div class="mb-6 break-inside-avoid">
@@ -136,11 +122,3 @@
 		{/each}
 	</div>
 </div>
-
-<!-- Navbar stays fixed above the canvas -->
-<nav class="fixed bottom-4 left-1/2 -translate-x-1/2 flex gap-5 items-center p-4 z-50
-            backdrop-blur-xl bg-white/15 border border-white/30 shadow-2xl shadow-black/20 rounded-full pointer-events-auto">
-	<PanelsLeftBottom />
-	<Send />
-	<CircleUser />
-</nav>
