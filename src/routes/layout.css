@@ -11,4 +11,6 @@
 
     /* 3. Explicitly link font-sans to your variable */
     --font-sans: var(--font-satoshi);
+
+    --color-off-black: oklch(0.1543 0 0);
 }
