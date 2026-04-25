@@ -2,7 +2,7 @@
 	import { Sun, Moon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
-	let isDark = $state(false);
+	let isDark = $state(true);
 
 	onMount(() => {
 		// Check localStorage or system preference on load

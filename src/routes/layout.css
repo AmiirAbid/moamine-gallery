@@ -20,12 +20,6 @@
 }
 
 @layer base {
-    /* Use this if you want to follow system settings */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --color-background: var(--color-off-black);
-        }
-    }
 
     :root.dark {
         --color-background: var(--color-off-black);
