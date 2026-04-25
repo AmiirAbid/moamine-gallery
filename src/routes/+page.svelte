@@ -29,7 +29,7 @@
 	let isDragging = $state(false);
 	let columns = $state([]);
 	let gap = $state(12);
-	let pad = $state(12);
+	let pad = $state(6);
 
 	let visibleTiles = $derived(computeVisible(x, y, tileW, tileH));
 
@@ -56,7 +56,7 @@
 		if (vw >= 1024) return { cols: 6, gap: 14, pad: 7 };
 		if (vw >= 768)  return { cols: 5, gap: 12, pad: 6 };
 		if (vw >= 480)  return { cols: 4, gap: 10, pad: 5 };
-		return { cols: 3, gap:  8, pad:  8 };
+		return { cols: 3, gap:  8, pad:  4 };
 	}
 
 	function init() {

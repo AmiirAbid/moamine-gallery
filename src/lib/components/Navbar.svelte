@@ -10,7 +10,7 @@
            shadow-xl shadow-black/30
            text-black/70 dark:text-white/70 text-sm">
 
-	<h1 class="font-bold">moamine&bull;gallery</h1>|
+	<h1 class="font-bold">moamine&bull;gallery</h1><div class="w-px h-5 bg-off-white"></div>
 	<div class="flex gap-2 items-center bg-black/60 transition-colors hover:text-black rounded-full py-1 px-2">
 		<PanelsLeftBottom class="w-5 h-5 cursor-pointer" />
 		<p class="hidden sm:block">Home</p>
