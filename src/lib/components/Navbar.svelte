@@ -5,10 +5,10 @@
 <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50
             flex gap-5 items-center px-6 py-2
             rounded-full pointer-events-auto
-            bg-black/50 backdrop-blur-sm
-            border border-gray-500
-            shadow-xl shadow-black/30
-            text-white/70 text-sm">
+            bg-white/50 dark:bg-black/50 backdrop-blur-sm
+           border border-gray-500
+           shadow-xl shadow-black/30
+           text-black/70 dark:text-white/70 text-sm">
 
 	<h1 class="font-bold">moamine&bull;gallery</h1>|
 	<div class="flex gap-2 items-center bg-black/60 transition-colors hover:text-black rounded-full py-1 px-2">

@@ -52,10 +52,10 @@
 	let animId = null;
 
 	function getResponsiveConfig(vw) {
-		if (vw >= 1280) return { cols: 7, gap: 16, pad: 16 };
-		if (vw >= 1024) return { cols: 6, gap: 14, pad: 14 };
-		if (vw >= 768)  return { cols: 5, gap: 12, pad: 12 };
-		if (vw >= 480)  return { cols: 4, gap: 10, pad: 10 };
+		if (vw >= 1280) return { cols: 7, gap: 16, pad: 8 };
+		if (vw >= 1024) return { cols: 6, gap: 14, pad: 7 };
+		if (vw >= 768)  return { cols: 5, gap: 12, pad: 6 };
+		if (vw >= 480)  return { cols: 4, gap: 10, pad: 5 };
 		return { cols: 3, gap:  8, pad:  8 };
 	}
 
@@ -154,7 +154,7 @@
 
 <div
 	role="presentation"
-	class="fixed inset-0 bg-off-black overflow-hidden touch-none select-none transition-opacity duration-500
+	class="fixed inset-0 bg-background overflow-hidden touch-none select-none transition-opacity duration-500
 	       {isDragging ? 'cursor-grabbing' : 'cursor-grab'}
 	       {ready ? 'opacity-100' : 'opacity-0'}"
 	onpointerdown={onPointerDown}

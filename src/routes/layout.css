@@ -12,5 +12,33 @@
     /* 3. Explicitly link font-sans to your variable */
     --font-sans: var(--font-satoshi);
 
-    --color-off-black: oklch(0.1543 0 0);
+    --color-off-black: oklch(0.1913 0 0);
+
+    --color-off-white: oklch(0.9586 0.0017 67.8);
+
+    --color-background: var(--color-off-black);
+}
+
+@layer base {
+    /* Use this if you want to follow system settings */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --color-background: var(--color-off-black);
+        }
+    }
+
+    :root.dark {
+        --color-background: var(--color-off-black);
+    }
+
+    /* 3. Handle Light Mode override if system is dark */
+    :root.light {
+        --color-background: var(--color-off-white);
+    }
+
+    /* Apply the variable to the body */
+    body {
+        background-color: var(--color-background);
+        transition: background-color 0.3s ease;
+    }
 }
