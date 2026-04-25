@@ -13,21 +13,23 @@
     --font-sans: var(--font-satoshi);
 
     --color-off-black: oklch(0.1913 0 0);
-
     --color-off-white: oklch(0.9586 0.0017 67.8);
 
     --color-background: var(--color-off-black);
+    --color-foreground: var(--color-off-white);
 }
 
 @layer base {
 
     :root.dark {
         --color-background: var(--color-off-black);
+        --color-foreground: var(--color-off-white);
     }
 
     /* 3. Handle Light Mode override if system is dark */
     :root.light {
         --color-background: var(--color-off-white);
+        --color-foreground: var(--color-off-black);
     }
 
     /* Apply the variable to the body */
