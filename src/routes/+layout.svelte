@@ -5,6 +5,7 @@
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	let { children } = $props();
 
+	let contactOpen = $state(false);
 </script>
 
 <svelte:head>
@@ -13,6 +14,6 @@
 	<link rel="stylesheet" href="/fonts/satoshi.css" />
 </svelte:head>
 
-<Navbar />
-<ThemeToggle />
+<Navbar bind:contactOpen />
+<ThemeToggle {contactOpen} />
 {@render children()}

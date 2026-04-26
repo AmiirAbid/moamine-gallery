@@ -2,6 +2,8 @@
 	import { Sun, Moon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
+	let { contactOpen = false } = $props();
+
 	let isDark = $state(true);
 
 	onMount(() => {
@@ -37,12 +39,14 @@
 	onclick={toggleTheme}
 	class="fixed top-4 right-4 z-50
            flex items-center justify-center p-3
-           rounded-full cursor-pointer transition-all duration-300
+           rounded-full cursor-pointer
            dark:bg-white/50 bg-black/50 backdrop-blur-sm
            border border-gray-500
            shadow-lg shadow-black/30 dark:shadow-white/10
            hover:border-white/50 active:scale-95
-           dark:text-black/70 text-white/70"
+           dark:text-black/70 text-white/70
+						transition-all ease-in-out"
+style="transform: translateX({contactOpen ? '80px' : '0'}); opacity: {contactOpen ? '0' : '1'};"
 	aria-label="Toggle Theme"
 >
 	{#if isDark}
