@@ -2,7 +2,7 @@
 	import { Phone } from '@lucide/svelte';
 </script>
 
-<div class="flex h-screen items-center justify-center text-center text-foreground flex-col gap-6">
+<div class="flex h-screen items-center justify-center text-center text-foreground flex-col gap-6 tracking-[-3%] mx-6">
 	<h2 class="text-5xl font-semibold">Coming Soon</h2>
 	<div class="flex flex-col items-center gap-4">
 		<h3 class="text-2xl font-light">Currently available for custom projects</h3>
