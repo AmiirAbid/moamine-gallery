@@ -38,11 +38,11 @@
 	class="fixed top-4 right-4 z-50
            flex items-center justify-center p-3
            rounded-full cursor-pointer transition-all duration-300
-           bg-white/50 dark:bg-black/50 backdrop-blur-sm
+           dark:bg-white/50 bg-black/50 backdrop-blur-sm
            border border-gray-500
-           shadow-xl shadow-black/30
+           shadow-lg shadow-black/30 dark:shadow-white/10
            hover:border-white/50 active:scale-95
-           text-black/70 dark:text-white/70"
+           dark:text-black/70 text-white/70"
 	aria-label="Toggle Theme"
 >
 	{#if isDark}
