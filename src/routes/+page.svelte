@@ -1,9 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
 
-	// 1. IMPORT OPTIMIZATION
-	// We generate 400px, 800px, and 1200px versions.
-	// We also ask for 'picture' which gives us the metadata and srcsets.
 	const images = import.meta.glob('$lib/images/*.{png,jpg,jpeg,webp}', {
 		eager: true,
 		query: {
@@ -13,13 +10,11 @@
 		}
 	});
 
-	// Map the images to an easy-to-use array of objects
 	const rawImages = Object.values(images).map(img => img.default);
 
 	const TILE_VW = 1.5;
 	const MIN_IMGS = 80;
 
-	// ─── Reactive state ───────────────────────────────────────────────────────
 	let x = $state(0);
 	let y = $state(0);
 	let tileW = $state(0);
@@ -30,6 +25,16 @@
 	let columns = $state([]);
 	let gap = $state(12);
 	let pad = $state(6);
+
+	// ─── Curve state ──────────────────────────────────────────────────────────
+	// curveX: horizontal drag velocity → rotateY on each row
+	// curveY: vertical drag velocity → rotateX on each column
+	let curveX = $state(0); // driven by velX
+	let curveY = $state(0); // driven by velY
+
+	const CURVE_SCALE = 0.04;    // how much velocity maps to degrees
+	const CURVE_MAX   = 18;      // max degrees of bend
+	const CURVE_DECAY = 0.88;    // how fast it springs back to flat
 
 	let visibleTiles = $derived(computeVisible(x, y, tileW, tileH));
 
@@ -68,7 +73,6 @@
 		const availW = newTileW - p * 2 - g * (cols - 1);
 		const colW = availW / cols;
 
-		// 2. DISTRIBUTION LOGIC
 		const allImgs = Array.from(
 			{ length: Math.max(MIN_IMGS, rawImages.length) },
 			(_, i) => rawImages[i % rawImages.length]
@@ -79,14 +83,9 @@
 
 		for (const imgData of allImgs) {
 			const shortestIdx = colHeights.indexOf(Math.min(...colHeights));
-
-			// Use metadata directly from the import - No more "new Image()"!
-			// We find the fallback img to get the original dimensions
 			const meta = imgData.img;
 			const ratio = meta.h / meta.w;
-
 			const imgHeight = colW * ratio;
-
 			cols_[shortestIdx].push(imgData);
 			colHeights[shortestIdx] += imgHeight + g;
 		}
@@ -120,6 +119,10 @@
 		y = ((y % tileH) + tileH) % tileH - tileH;
 	}
 
+	function clamp(v, min, max) {
+		return Math.max(min, Math.min(max, v));
+	}
+
 	function onPointerDown(e) {
 		isDragging = true;
 		lastPX = e.clientX; lastPY = e.clientY;
@@ -134,6 +137,11 @@
 		const dy = e.clientY - lastPY;
 		velX = velX * 0.4 + dx * 0.6;
 		velY = velY * 0.4 + dy * 0.6;
+
+		// Update live curve while dragging
+		curveX = clamp(-velX * CURVE_SCALE, -CURVE_MAX, CURVE_MAX);
+		curveY = clamp(-velY * CURVE_SCALE, -CURVE_MAX, CURVE_MAX);
+
 		x += dx; y += dy;
 		wrap();
 		lastPX = e.clientX; lastPY = e.clientY;
@@ -143,12 +151,51 @@
 		if (!isDragging) return;
 		isDragging = false;
 		(function inertia() {
-			if (Math.abs(velX) < 0.4 && Math.abs(velY) < 0.4) return;
 			velX *= 0.92; velY *= 0.92;
+
+			// Decay curve back to flat
+			curveX *= CURVE_DECAY;
+			curveY *= CURVE_DECAY;
+
+			if (Math.abs(curveX) < 0.01) curveX = 0;
+			if (Math.abs(curveY) < 0.01) curveY = 0;
+
+			if (Math.abs(velX) < 0.4 && Math.abs(velY) < 0.4 && curveX === 0 && curveY === 0) return;
+
 			x += velX; y += velY;
 			wrap();
 			animId = requestAnimationFrame(inertia);
 		})();
+	}
+
+	// ─── Per-item curve transform ─────────────────────────────────────────────
+	// Each image gets a rotateY proportional to its column position (for X drag)
+	// and a rotateX proportional to its row position (for Y drag).
+	// The result: the whole grid bends like a flexible sheet in the drag direction.
+	function getItemTransform(
+		colIdx,
+		totalCols,
+	) {
+		// Normalized position: -1 (left edge) to +1 (right edge)
+		const normCol = totalCols > 1 ? (colIdx / (totalCols - 1)) * 2 - 1 : 0;
+
+		// rotateY bends the grid horizontally (driven by horizontal drag)
+		const rotY = normCol * curveX;
+
+		// Z pushback makes edges recede, reinforcing the cylinder feel
+		const tz = -(normCol * normCol) * Math.abs(curveX) * 2.5;
+
+		return `perspective(900px) rotateY(${rotY}deg) translateZ(${tz}px)`;
+	}
+
+	function getRowTransform(
+		rowPct, // 0 (top) to 1 (bottom) within the column
+	) {
+		// Normalized: -1 (top) to +1 (bottom)
+		const normRow = rowPct * 2 - 1;
+		const rotX = normRow * curveY;
+		const tz = -(normRow * normRow) * Math.abs(curveY) * 2.5;
+		return `perspective(900px) rotateX(${rotX}deg) translateZ(${tz}px)`;
 	}
 </script>
 
@@ -161,6 +208,7 @@
 	onpointermove={onPointerMove}
 	onpointerup={onPointerUp}
 	onpointercancel={onPointerUp}
+	style="perspective: 1400px; transform-style: preserve-3d;"
 >
 	<div
 		class="absolute top-0 left-0"
@@ -170,6 +218,7 @@
 			grid-template-rows: repeat(3, {tileH}px);
 			transform: translate3d({x}px, {y}px, 0);
 			will-change: transform;
+			transform-style: preserve-3d;
 		"
 	>
 		{#each Array(9) as _, tileIdx}
@@ -177,14 +226,32 @@
 				<div
 					style="
 						width: {tileW}px; height: {tileH}px; padding: {pad}px;
-						display: grid; grid-template-columns: {colWidths.map(w => w + 'px').join(' ')};
-						gap: {gap}px; contain: layout paint; overflow: hidden;
+						display: grid;
+						grid-template-columns: {colWidths.map(w => w + 'px').join(' ')};
+						gap: {gap}px;
+						contain: layout paint;
+						overflow: hidden;
+						transform-style: preserve-3d;
 					"
 				>
-					{#each columns as col}
-						<div style="display: flex; flex-direction: column; gap: {gap}px;">
-							{#each col as imgData}
-								<picture>
+					{#each columns as col, colIdx}
+						<div
+							style="
+								display: flex;
+								flex-direction: column;
+								gap: {gap}px;
+								transform: {getItemTransform(colIdx, columns.length)};
+								transform-origin: center center;
+							"
+						>
+							{#each col as imgData, imgIdx}
+								<picture
+									style="
+										transform: {getRowTransform((imgIdx + 0.5) / col.length)};
+										transform-origin: center center;
+										display: block;
+									"
+								>
 									{#each Object.entries(imgData.sources) as [format, srcset]}
 										<source {srcset} type="image/{format}" />
 									{/each}
